@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ci-Ning Ang</title>
+    <meta
+      name="description"
+      content="Ci-Ning Ang — pre-vet student at Rutgers studying Animal Science and Music. Animals, music, dance and a journal."
+    />
+    <meta name="theme-color" content="#86a9d4" />
+
+    <!-- Start fetching the hero video before the JS bundle mounts the <video> -->
+    <link rel="preload" href="/videos/angster.mp4" as="video" type="video/mp4" fetchpriority="high" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
