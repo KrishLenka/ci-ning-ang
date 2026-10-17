@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 import MeadowPiglets from "@/components/MeadowPiglets.tsx";
 import MeadowBunnies from "@/components/MeadowBunnies.tsx";
+import MeadowHorses from "@/components/MeadowHorses.tsx";
 import {
   DEFAULT_ZONES,
   type MeadowPiglets as PigletsApi,
@@ -39,6 +40,7 @@ export function Hero() {
       {/* Background layers. Only real links and buttons above the video take pointer events,
           so clicks on the meadow reach the piglets. */}
       <BackgroundVideo src={site.video} still={site.videoStill} className="-z-40" />
+      <MeadowHorses className="-z-30" />
       <MeadowPiglets
         className="-z-30"
         apiRef={pigletsApi}
