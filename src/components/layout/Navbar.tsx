@@ -1,136 +1,92 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Mail, Menu, X } from "lucide-react";
-import { navLinks, site } from "@/content/site";
+import { navLinks } from "@/content/site";
 import { handleAnchorClick } from "@/lib/scroll";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const close = () => setOpen(false);
 
-  // Lock page scroll and allow Escape to close while the mobile sheet is open.
+  // Close the dropdown on Escape, on a click outside it, or if the window grows past 520px.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    const onPointer = (e: PointerEvent) => {
+      if (!navRef.current?.contains(e.target as Node)) close();
+    };
+    const wide = window.matchMedia("(min-width: 520px)");
+    const onWide = () => wide.matches && close();
     window.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    wide.addEventListener("change", onWide);
     return () => {
-      document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+      wide.removeEventListener("change", onWide);
     };
   }, [open]);
 
-  const close = () => setOpen(false);
+  const linkClass =
+    "rounded-full px-[13px] py-2 text-sm font-medium text-ink transition-colors hover:bg-white/50";
 
   return (
-    <>
-      <header className="fixed left-0 right-0 top-4 z-50 px-8 lg:px-16">
-        <nav className="flex items-center justify-between gap-4" aria-label="Main">
-          <div className="flex flex-1">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
+      <nav ref={navRef} aria-label="Main" className="pointer-events-auto relative">
+        <div className="liquid-glass flex items-center rounded-full p-1">
+          {navLinks.map((link) => (
             <a
-              href="#top"
-              onClick={handleAnchorClick("top")}
-              aria-label="Back to top"
-              className="liquid-glass flex h-12 w-12 items-center justify-center rounded-full font-heading text-3xl italic text-white"
+              key={link.id}
+              href={`#${link.id}`}
+              onClick={handleAnchorClick(link.id)}
+              className={`${linkClass} max-[519px]:hidden`}
             >
-              <span className="-ml-0.5 leading-none">{site.monogram}</span>
+              {link.label}
             </a>
-          </div>
-
-          <div className="liquid-glass hidden items-center rounded-full py-1 pl-2 pr-1 md:flex">
-            {navLinks.map((link) => (
-              <a
-                key={link.id}
-                href={`#${link.id}`}
-                onClick={handleAnchorClick(link.id)}
-                className="px-3 py-2 font-body text-sm font-medium text-foreground/90 transition-colors hover:text-white"
-              >
-                {link.label}
-              </a>
-            ))}
-            <a
-              href="#contact"
-              onClick={handleAnchorClick("contact")}
-              className="ml-1 flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-sm font-medium text-black transition-colors hover:bg-white/85"
-            >
-              Say hi
-              <Mail className="h-4 w-4" />
-            </a>
-          </div>
-
-          <div className="flex flex-1 justify-end">
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              aria-label="Open menu"
-              aria-expanded={open}
-              aria-controls="mobile-menu"
-              className="liquid-glass flex h-12 w-12 items-center justify-center rounded-full text-white md:hidden"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          </div>
-        </nav>
-      </header>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            id="mobile-menu"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Menu"
-            className="liquid-glass-strong fixed inset-0 z-[60] flex flex-col bg-black/10 px-8 pb-10 pt-4 md:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+          ))}
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls="nav-menu"
+            className={`${linkClass} min-[520px]:hidden`}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-heading text-3xl italic text-white">{site.monogram}</span>
-              <button
-                type="button"
-                onClick={close}
-                aria-label="Close menu"
-                autoFocus
-                className="liquid-glass flex h-12 w-12 items-center justify-center rounded-full text-white"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+            Menu
+          </button>
+          <a
+            href="#contact"
+            onClick={handleAnchorClick("contact", close)}
+            className="ml-1 rounded-full bg-plum px-4 py-[7px] text-sm font-medium text-white transition-colors hover:bg-plum-dark"
+          >
+            Say hi
+          </a>
+        </div>
 
-            <ul className="mt-16 flex flex-1 flex-col gap-2">
-              {navLinks.map((link, i) => (
-                <motion.li
-                  key={link.id}
-                  initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ delay: 0.05 + i * 0.05, duration: 0.35 }}
-                >
+        <AnimatePresence>
+          {open && (
+            <motion.ul
+              id="nav-menu"
+              className="liquid-glass absolute left-0 right-0 top-full mt-2 flex flex-col gap-0.5 rounded-3xl p-2 min-[520px]:hidden"
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+            >
+              {navLinks.map((link) => (
+                <li key={link.id}>
                   <a
                     href={`#${link.id}`}
                     onClick={handleAnchorClick(link.id, close)}
-                    className="block py-1 font-heading text-5xl italic text-white"
+                    className={`${linkClass} block`}
                   >
                     {link.label}
                   </a>
-                </motion.li>
+                </li>
               ))}
-            </ul>
-
-            <a
-              href="#contact"
-              onClick={handleAnchorClick("contact", close)}
-              className="flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 font-medium text-black"
-            >
-              Say hi
-              <Mail className="h-4 w-4" />
-            </a>
-            <p className="mt-6 text-center font-hand text-3xl text-white/90 -rotate-[4deg]">
-              {site.signature}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+            </motion.ul>
+          )}
+        </AnimatePresence>
+      </nav>
+    </header>
   );
 }

@@ -17,7 +17,7 @@
   }
 
   body {
-    @apply bg-background font-body text-foreground antialiased;
+    @apply bg-paper font-body text-ink antialiased;
   }
 
   ::selection {
@@ -28,68 +28,129 @@
 
 @layer components {
   .liquid-glass {
-    background: rgba(255, 255, 255, 0.01);
-    background-blend-mode: luminosity;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: none;
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
     position: relative;
-    overflow: hidden;
-  }
-
-  .liquid-glass::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1.4px;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.45) 0%,
-      rgba(255, 255, 255, 0.15) 20%,
-      rgba(255, 255, 255, 0) 40%,
-      rgba(255, 255, 255, 0) 60%,
-      rgba(255, 255, 255, 0.15) 80%,
-      rgba(255, 255, 255, 0.45) 100%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
+    isolation: isolate;
+    background: rgba(244, 237, 255, 0.6);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.7),
+      0 8px 28px rgba(70, 36, 110, 0.14);
   }
 
   .liquid-glass-strong {
-    background: rgba(255, 255, 255, 0.01);
-    background-blend-mode: luminosity;
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
-    border: none;
-    box-shadow:
-      4px 4px 4px rgba(0, 0, 0, 0.05),
-      inset 0 1px 1px rgba(255, 255, 255, 0.15);
     position: relative;
-    overflow: hidden;
+    isolation: isolate;
+    color: #fff;
+    background: rgba(104, 66, 166, 0.62);
+    backdrop-filter: blur(30px) saturate(1.5);
+    -webkit-backdrop-filter: blur(30px) saturate(1.5);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.35),
+      0 8px 24px rgba(60, 26, 100, 0.25);
   }
 
+  .liquid-glass::before,
   .liquid-glass-strong::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
     padding: 1.4px;
+    pointer-events: none;
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.5) 0%,
-      rgba(255, 255, 255, 0.2) 20%,
-      rgba(255, 255, 255, 0) 40%,
+      rgba(255, 255, 255, 0.75) 0%,
+      rgba(255, 255, 255, 0.2) 22%,
+      rgba(255, 255, 255, 0) 42%,
       rgba(255, 255, 255, 0) 60%,
-      rgba(255, 255, 255, 0.2) 80%,
-      rgba(255, 255, 255, 0.5) 100%
+      rgba(214, 196, 255, 0.35) 80%,
+      rgba(255, 255, 255, 0.65) 100%
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
+  }
+
+  /* Soft light halo that sits only behind the hero copy. */
+  .text-halo::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
     pointer-events: none;
+    inset: -34px -64px -30px;
+    background: radial-gradient(
+      closest-side,
+      rgba(250, 245, 255, 0.62),
+      rgba(250, 245, 255, 0.42) 60%,
+      rgba(250, 245, 255, 0)
+    );
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+    -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 100%);
+  }
+
+  @media (max-width: 759px) {
+    .text-halo::before {
+      inset: -26px -22px -22px;
+    }
+  }
+
+  /* Frosted card behind the intro paragraph, feathered so it melts into the halo. */
+  .text-backdrop {
+    background: rgba(250, 245, 255, 0.5);
+    backdrop-filter: blur(10px) saturate(1.2);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    box-shadow:
+      0 0 24px 14px rgba(250, 245, 255, 0.4),
+      inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  }
+
+  /* White glows that lift plum text off the halo. */
+  .glow-heading {
+    text-shadow: 0 0 24px rgba(255, 255, 255, 0.8), 0 0 4px rgba(255, 255, 255, 0.55);
+  }
+
+  .glow-soft {
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+  }
+
+  /* Cream text over the bright meadow needs a soft dark lift instead. */
+  .glow-warm {
+    text-shadow: 0 1px 10px rgba(52, 25, 79, 0.45), 0 0 2px rgba(52, 25, 79, 0.25);
+  }
+
+  /* Soft stand-in for photos that haven't been added yet. */
+  .photo-placeholder {
+    background:
+      radial-gradient(120% 90% at 20% 10%, rgba(255, 255, 255, 0.8), transparent 60%),
+      linear-gradient(135deg, #ece3fa 0%, #f7e6ef 55%, #e4ecf8 100%);
+  }
+
+  /* Postage stamp with a lilac scalloped (perforated) edge. */
+  .stamp {
+    --r: 3px;
+    padding: calc(2 * var(--r));
+    background: #8a5cc4;
+    -webkit-mask:
+      radial-gradient(var(--r), #0000 97%, #000) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) /
+        calc(3 * var(--r)) calc(3 * var(--r)),
+      linear-gradient(#000 0 0) no-repeat 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r));
+    mask:
+      radial-gradient(var(--r), #0000 97%, #000) round calc(-1.5 * var(--r)) calc(-1.5 * var(--r)) /
+        calc(3 * var(--r)) calc(3 * var(--r)),
+      linear-gradient(#000 0 0) no-repeat 50% / calc(100% - 3 * var(--r)) calc(100% - 3 * var(--r));
+  }
+}
+
+/* Each letter of the secret boop note bumps up in turn (delays set per letter). */
+@keyframes boop-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  45% {
+    transform: translateY(-7px);
   }
 }

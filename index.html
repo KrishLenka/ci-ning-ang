@@ -3,15 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ci-Ning Ang</title>
-    <meta
-      name="description"
-      content="Ci-Ning Ang — pre-vet student at Rutgers studying Animal Science and Music. Animals, music, dance and a journal."
-    />
-    <meta name="theme-color" content="#86a9d4" />
+    <!-- Title, description and robots are injected from src/content/meta.ts (see vite.config.ts). -->
+    <meta name="theme-color" content="#FAF7FD" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- Start fetching the hero video before the JS bundle mounts the <video> -->
-    <link rel="preload" href="/videos/angster.mp4" as="video" type="video/mp4" fetchpriority="high" />
+    <!-- Start fetching the hero background before the JS bundle mounts it: the video normally,
+         the still image for visitors with reduced motion turned on. -->
+    <link rel="preload" href="/videos/meadow_bubbles.mp4" as="video" type="video/mp4" fetchpriority="high" media="(prefers-reduced-motion: no-preference)" />
+    <link rel="preload" href="/meadow_bubbles_static.jpg" as="image" fetchpriority="high" media="(prefers-reduced-motion: reduce)" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

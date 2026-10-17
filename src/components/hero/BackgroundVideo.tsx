@@ -1,12 +1,31 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const REDUCED = "(prefers-reduced-motion: reduce)";
+
+/** Tracks the visitor's reduced-motion setting, including changes while the page is open. */
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(() => window.matchMedia(REDUCED).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(REDUCED);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+  return reduced;
+}
+
+type Props = { src: string; still: string; className?: string };
 
 /**
- * Full-bleed looping background video. It's decorative and silent, so it plays
- * for everyone, including visitors with prefers-reduced-motion set (some browsers
- * block autoplay in that case, so we nudge it with play() as a fallback).
+ * Full-bleed looping background video, or a still image for visitors who prefer reduced motion.
+ *
+ * Keep both object-cover and centered: MeadowPiglets maps its sprites onto the
+ * picture with the same object-fit: cover math.
  */
-export function BackgroundVideo({ src }: { src: string }) {
+export function BackgroundVideo({ src, still, className = "" }: Props) {
+  const reduced = usePrefersReducedMotion();
   const ref = useRef<HTMLVideoElement>(null);
+  const cover = `absolute inset-0 h-full w-full object-cover object-center ${className}`;
 
   useEffect(() => {
     const video = ref.current;
@@ -26,23 +45,24 @@ export function BackgroundVideo({ src }: { src: string }) {
       video.removeEventListener("canplay", tryPlay);
       document.removeEventListener("visibilitychange", tryPlay);
     };
-  }, []);
+  }, [reduced]);
+
+  if (reduced) return <img src={still} alt="" aria-hidden className={cover} />;
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden>
-      <video
-        ref={ref}
-        className="absolute inset-0 h-full w-full object-cover"
-        src={src}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
-        disablePictureInPicture
-        tabIndex={-1}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
-    </div>
+    <video
+      ref={ref}
+      aria-hidden
+      className={cover}
+      src={src}
+      poster={still}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      disablePictureInPicture
+      tabIndex={-1}
+    />
   );
 }
