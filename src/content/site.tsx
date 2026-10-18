@@ -44,9 +44,13 @@ export const navLinks: NavLink[] = [
   { label: "Leadership", id: "leadership" },
 ];
 
-/** The glass pill at the bottom of the hero. She's deciding what goes here next. */
+/**
+ * The glass pill at the bottom of the hero. It hides everything over the video so the
+ * meadow can be seen, then brings it back (scrolling down brings it back too).
+ */
 export const heroPill = {
-  label: "Work in Progress",
+  showScenery: "show scenery",
+  showText: "show text",
 };
 
 /** About */
@@ -141,8 +145,8 @@ export const music = {
     title: "On repeat",
     // Songs without a title are skipped, so empty slots can wait here until she fills them in.
     songs: [
-      { title: "Fine On The Outside", artist: "Priscilla Ahn", art: "/images/fine_on_the_outside.jpeg" },
       { title: "My Everything", artist: "Ariana Grande", art: "/images/my_everything.jpeg" },
+      { title: "Fever", artist: "Dua Lipa", art: "/images/fever.jpeg" },
       { title: "", artist: "", art: "" },
       { title: "", artist: "", art: "" },
       { title: "", artist: "", art: "" },

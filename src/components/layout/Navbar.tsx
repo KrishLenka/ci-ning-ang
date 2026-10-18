@@ -2,11 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { navLinks } from "@/content/site";
 import { handleAnchorClick } from "@/lib/scroll";
+import { sceneryFade, useInert, useSceneryMode } from "@/hooks/useSceneryMode";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const close = () => setOpen(false);
+  // Hidden (and closed) while the hero pill is showing the scenery.
+  const scenery = useSceneryMode();
+  useInert(navRef, scenery);
+  useEffect(() => {
+    if (scenery) setOpen(false);
+  }, [scenery]);
 
   // Close the dropdown on Escape, on a click outside it, or if the window grows past 520px.
   useEffect(() => {
@@ -31,7 +38,10 @@ export function Navbar() {
     "rounded-full px-[13px] py-2 text-sm font-medium text-ink transition-colors hover:bg-white/50";
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4">
+    <header
+      aria-hidden={scenery}
+      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 ${sceneryFade(scenery)}`}
+    >
       <nav ref={navRef} aria-label="Main" className="pointer-events-auto relative">
         <div className="liquid-glass flex items-center rounded-full p-1">
           {navLinks.map((link) => (

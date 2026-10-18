@@ -1,4 +1,5 @@
 import { Fragment, useRef } from "react";
+import { sceneryFade, useInert, useSceneryMode } from "@/hooks/useSceneryMode";
 import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 import MeadowPiglets from "@/components/MeadowPiglets.tsx";
@@ -29,6 +30,9 @@ const pigletZones: PigletZone[] = DEFAULT_ZONES.map((zone, i) =>
 
 export function Hero() {
   const roles = site.roles.split("·").map((r) => r.trim());
+  const scenery = useSceneryMode();
+  const copyRef = useRef<HTMLDivElement>(null);
+  useInert(copyRef, scenery);
   const pigletsApi = useRef<PigletsApi | null>(null);
   // Every 50th boop (from any piglet on the page) sends a special piggy across the sky.
   const boop = useBoops((total) => pigletsApi.current?.summonFlyer(easterEggs.milestoneFlyer(total)));
@@ -56,7 +60,12 @@ export function Hero() {
       </HeroStage>
       <div className="pointer-events-none absolute inset-0 -z-20" style={{ background: tint }} />
 
-      <div className="pointer-events-none flex flex-1 items-center justify-center px-4 pt-20 text-center">
+      {/* Fades away (mist included) while the pill's "show scenery" mode is on. */}
+      <div
+        ref={copyRef}
+        aria-hidden={scenery}
+        className={`pointer-events-none flex flex-1 items-center justify-center px-4 pt-20 text-center ${sceneryFade(scenery)}`}
+      >
         <div className="text-halo relative isolate flex max-w-[40rem] flex-col items-center gap-3.5">
           <BlurText
             as="h1"
