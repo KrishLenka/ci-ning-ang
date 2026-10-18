@@ -5,6 +5,7 @@ import { ArrowDown } from "lucide-react";
 import MeadowPiglets from "@/components/MeadowPiglets.tsx";
 import MeadowBunnies from "@/components/MeadowBunnies.tsx";
 import MeadowHorses from "@/components/MeadowHorses.tsx";
+import MeadowSwans from "@/components/MeadowSwans.tsx";
 import {
   DEFAULT_ZONES,
   type MeadowPiglets as PigletsApi,
@@ -44,10 +45,10 @@ export function Hero() {
     >
       {/* Background layers. Only real links and buttons above the video take pointer events,
           so clicks on the meadow reach the piglets (and on touch screens, swipes reach the stage).
-          Left-hand horses walk behind the piglets, right-hand ones in front. */}
+          Horses walk in front of the piglets. */}
       <HeroStage className="-z-30">
         <BackgroundVideo src={site.video} still={site.videoStill} className="-z-40" />
-        <MeadowHorses className="-z-30" frontClassName="-z-[29]" firstAfter={[4, 4]} />
+        <MeadowHorses className="-z-[29]" firstAfter={[4, 4]} />
         <MeadowPiglets
           className="-z-30"
           apiRef={pigletsApi}
@@ -56,7 +57,10 @@ export function Hero() {
           easterEggCooldown={60}
           onPigletClick={boop}
         />
-        <MeadowBunnies className="-z-30" />
+        {/* Swans (and their ripples) float above the piglets' and horses' reflections;
+            the foreground bunnies stay in front of everything. */}
+        <MeadowSwans className="-z-[28]" alignWith=".text-backdrop" />
+        <MeadowBunnies className="-z-[27]" />
       </HeroStage>
       <div className="pointer-events-none absolute inset-0 -z-20" style={{ background: tint }} />
 
