@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { asset } from "@/lib/asset";
 
 const REDUCED = "(prefers-reduced-motion: reduce)";
 
@@ -52,15 +53,15 @@ export function BackgroundVideo({ src, still, className = "" }: Props) {
     };
   }, [reduced]);
 
-  if (reduced) return <img src={still} alt="" aria-hidden className={cover} />;
+  if (reduced) return <img src={asset(still)} alt="" aria-hidden className={cover} />;
 
   return (
     <video
       ref={ref}
       aria-hidden
       className={cover}
-      src={src}
-      poster={still}
+      src={asset(src)}
+      poster={asset(still)}
       autoPlay
       loop
       muted

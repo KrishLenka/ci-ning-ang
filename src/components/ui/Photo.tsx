@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
+import { asset } from "@/lib/asset";
 
 type PhotoProps = {
   src?: string;
@@ -30,7 +31,7 @@ export function Photo({ src, alt, className = "", showAlt = true, focus }: Photo
 
   return (
     <img
-      src={src}
+      src={asset(src)}
       alt={alt}
       loading="lazy"
       decoding="async"

@@ -21,6 +21,10 @@ function siteMeta(): Plugin {
 }
 
 export default defineConfig({
+  // Where the site is served from. GitHub Pages project sites live under
+  // /<repo-name>/, so the deploy workflow sets BASE_PATH=/ci-ning-ang/.
+  // Local dev and a custom domain (ciningang.com) use "/".
+  base: process.env.BASE_PATH || "/",
   plugins: [react(), siteMeta()],
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
