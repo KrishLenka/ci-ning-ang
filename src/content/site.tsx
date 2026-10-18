@@ -18,7 +18,7 @@ export type Photo = { src: string; alt: string; focus?: string };
 export const site = {
   firstName: "Ning",
   /** "·" separators are drawn in lilac. */
-  roles: "Future Vet · Animal Sciences + Music",
+  roles: "Future Vet",
   intro: (
     <>
       I'm pursuing a double degree in{" "}

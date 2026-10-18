@@ -26,9 +26,8 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          # The site lives at krishlenka.github.io/ci-ning-ang/.
-          # Once ciningang.com is connected, change this to "/".
-          BASE_PATH: /ci-ning-ang/
+          # Served from the root of ciningang.com.
+          BASE_PATH: /
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
