@@ -41,9 +41,14 @@ export function BackgroundVideo({ src, still, className = "" }: Props) {
     video.addEventListener("canplay", tryPlay);
     // Resume after the tab regains focus (iOS low-power mode can pause it).
     document.addEventListener("visibilitychange", tryPlay);
+    // iPhones in Low Power Mode refuse to autoplay, but a video may start on any tap or swipe.
+    document.addEventListener("touchend", tryPlay, { passive: true });
+    document.addEventListener("pointerup", tryPlay, { passive: true });
     return () => {
       video.removeEventListener("canplay", tryPlay);
       document.removeEventListener("visibilitychange", tryPlay);
+      document.removeEventListener("touchend", tryPlay);
+      document.removeEventListener("pointerup", tryPlay);
     };
   }, [reduced]);
 

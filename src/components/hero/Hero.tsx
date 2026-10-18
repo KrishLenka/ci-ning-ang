@@ -12,6 +12,7 @@ import {
 import { useBoops } from "@/hooks/useBoops";
 import { BlurText } from "@/components/ui/BlurText";
 import { BackgroundVideo } from "@/components/hero/BackgroundVideo";
+import { HeroStage } from "@/components/hero/HeroStage";
 import { HeroPill } from "@/components/hero/HeroPill";
 import { easterEggs, site } from "@/content/site";
 import { blurIn } from "@/lib/motion";
@@ -38,18 +39,21 @@ export function Hero() {
       className="relative isolate flex h-[100svh] min-h-[600px] flex-col overflow-hidden"
     >
       {/* Background layers. Only real links and buttons above the video take pointer events,
-          so clicks on the meadow reach the piglets. */}
-      <BackgroundVideo src={site.video} still={site.videoStill} className="-z-40" />
-      <MeadowHorses className="-z-30" />
-      <MeadowPiglets
-        className="-z-30"
-        apiRef={pigletsApi}
-        zones={pigletZones}
-        easterEggClicks={22}
-        easterEggCooldown={60}
-        onPigletClick={boop}
-      />
-      <MeadowBunnies className="-z-30" />
+          so clicks on the meadow reach the piglets (and on touch screens, swipes reach the stage).
+          Left-hand horses walk behind the piglets, right-hand ones in front. */}
+      <HeroStage className="-z-30">
+        <BackgroundVideo src={site.video} still={site.videoStill} className="-z-40" />
+        <MeadowHorses className="-z-30" frontClassName="-z-[29]" firstAfter={[4, 4]} />
+        <MeadowPiglets
+          className="-z-30"
+          apiRef={pigletsApi}
+          zones={pigletZones}
+          easterEggClicks={22}
+          easterEggCooldown={60}
+          onPigletClick={boop}
+        />
+        <MeadowBunnies className="-z-30" />
+      </HeroStage>
       <div className="pointer-events-none absolute inset-0 -z-20" style={{ background: tint }} />
 
       <div className="pointer-events-none flex flex-1 items-center justify-center px-4 pt-20 text-center">

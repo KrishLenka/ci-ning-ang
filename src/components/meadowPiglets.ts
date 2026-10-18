@@ -635,7 +635,7 @@ export function createMeadowPiglets(opts: MeadowPigletsOptions): MeadowPiglets {
   let dpr = 1, cssW = 0, cssH = 0, cs = 1, ox = 0, oy = 0;
   function measure() {
     const r = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 3);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     cssW = r.width; cssH = r.height;
     canvas.width = Math.max(1, Math.round(cssW * dpr));
     canvas.height = Math.max(1, Math.round(cssH * dpr));

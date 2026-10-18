@@ -30,10 +30,14 @@ export interface HorseRoute {
   cover: Vec[][];
   /** Video px per sprite px at the start and at the drinking spot (farther = smaller). */
   scale: [number, number];
+  /** Draw this route's horse on `frontCanvas` (when given) instead of the main canvas. */
+  front?: boolean;
 }
 
 export interface MeadowHorsesOptions {
   canvas: HTMLCanvasElement;
+  /** Optional second canvas, same box, for routes marked `front` (e.g. above the piglets). */
+  frontCanvas?: HTMLCanvasElement;
   videoSize?: { width: number; height: number };
   /** Must match the video's CSS object-position (default centered). */
   objectPosition?: { x: number; y: number };
@@ -76,6 +80,7 @@ export const DEFAULT_ROUTES: HorseRoute[] = [
       [1655, 512], [1640, 516], [1620, 516], [1600, 512], [1588, 498], [1585, 470],
     ]],
     scale: [1.35, 1.6],
+    front: true,
   },
 ];
 
@@ -477,7 +482,9 @@ function lerpAxis(axis: Vec[], x: number) {
 
 export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
   const canvas = opts.canvas;
-  const ctx = canvas.getContext("2d")!;
+  const layers = [canvas, opts.frontCanvas].filter(Boolean).map((c) => ({ canvas: c!, ctx: c!.getContext("2d")! }));
+  // The layer being drawn; the drawing helpers below all use it.
+  let ctx = layers[0].ctx;
   const VW = opts.videoSize?.width ?? 1924, VH = opts.videoSize?.height ?? 1076;
   const pos = opts.objectPosition ?? { x: 0.5, y: 0.5 };
   const routes = opts.routes ?? DEFAULT_ROUTES;
@@ -489,10 +496,12 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
   let dpr = 1, cssW = 0, cssH = 0, cs = 1, ox = 0, oy = 0;
   function measure() {
     const r = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 3);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
     cssW = r.width; cssH = r.height;
-    canvas.width = Math.max(1, Math.round(cssW * dpr));
-    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    for (const l of layers) {
+      l.canvas.width = Math.max(1, Math.round(cssW * dpr));
+      l.canvas.height = Math.max(1, Math.round(cssH * dpr));
+    }
     cs = Math.max(cssW / VW, cssH / VH);
     ox = (cssW - VW * cs) * pos.x; oy = (cssH - VH * cs) * pos.y;
   }
@@ -670,11 +679,17 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
   }
 
   function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    for (const h of horses) if (h) drawReflection(h);
-    for (const h of horses) if (h) drawHorse(h);
+    layers.forEach((layer, li) => {
+      ctx = layer.ctx;
+      ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      // Without a front canvas, every route draws on the main one.
+      const mine = horses.filter((h): h is Horse => !!h && (layers.length > 1 && routes[h.route].front ? 1 : 0) === li);
+      for (const h of mine) drawReflection(h);
+      for (const h of mine) drawHorse(h);
+    });
+    ctx = layers[0].ctx;
     if (opts.debug) {
       ctx.lineWidth = 2;
       routes.forEach((r, i) => {
