@@ -47,6 +47,8 @@ export interface MeadowHorsesOptions {
   water?: WaterConfig | false;
   /** Seconds before the first horse, [min, max] (default [4, 10]). The other side follows later. */
   firstAfter?: [number, number];
+  /** Name of a coat (e.g. "Unicorn") for the very first horse after load; random after that. */
+  firstCoat?: string;
   /** Seconds after a horse has left before the next one on that side, [min, max] (default [20, 30]). */
   every?: [number, number];
   /** Draw the routes and cover shapes. */
@@ -542,6 +544,7 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
   const lastCoat: number[] = routes.map(() => -1);
   // The first horse comes quickly; the other side's first one a little later.
   const first = rand(...(opts.firstAfter ?? [4, 10]));
+  let firstHorse = true;
   const firstSide = Math.floor(Math.random() * routes.length);
   const next: number[] = routes.map((_, i) => (i === firstSide ? first : first + rand(8, 18)));
 
@@ -557,7 +560,11 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
     // Every coat is equally likely, except the unicorn: a third as often as any other.
     const weight = (i: number) => (HORSE_COATS[i].unicorn ? 1 / 3 : 1);
     let pick = Math.random() * choices.reduce((sum, i) => sum + weight(i), 0);
-    const coat = choices.find((i) => (pick -= weight(i)) < 0) ?? choices[choices.length - 1];
+    let coat = choices.find((i) => (pick -= weight(i)) < 0) ?? choices[choices.length - 1];
+    // The very first horse can be a chosen coat (handy for showing off the unicorn).
+    const wanted = firstHorse && opts.firstCoat ? HORSE_COATS.findIndex((c) => c.name === opts.firstCoat) : -1;
+    if (wanted >= 0) coat = wanted;
+    firstHorse = false;
     lastCoat[route] = coat;
     const settle: Step = { kind: "stand", dur: rand(0.5, 1.1) };
     const linger = (): Step => ({ kind: "stand", dur: rand(3, 10) });

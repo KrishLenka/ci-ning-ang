@@ -303,9 +303,8 @@ export const footer = {
 /* Easter eggs (secret: no hint or counter is shown on the page)            */
 /* ----------------------------------------------------------------------- */
 
-/** Piglet clicks ("boops") are counted in the visitor's browser. */
+/** Piglet clicks ("boops") are counted for this visit; a reload starts again from 0. */
 export const easterEggs = {
-  boopStorageKey: "meadow.boops",
   boopEvery: 50,
   boopMessage: (n: number) => `${n} boops! 🐷`,
   // 50 → purple, 100 → gold, 200 → rainbow; beyond that the pattern repeats

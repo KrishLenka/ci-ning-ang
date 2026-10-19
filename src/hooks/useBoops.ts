@@ -1,33 +1,16 @@
 import { useEffect, useRef } from "react";
 import { easterEggs } from "@/content/site";
 
-// Every piglet on the page (hero and About) shares one running total, kept in this browser.
+// Every piglet on the page (hero and About) shares one running total. It lives only in memory,
+// so each visit (and each reload) starts counting from 0.
 
 type MilestoneListener = (total: number) => void;
 
 const listeners = new Set<MilestoneListener>();
-let total: number | null = null;
-
-function readTotal(): number {
-  try {
-    const n = Number(localStorage.getItem(easterEggs.boopStorageKey));
-    return Number.isInteger(n) && n > 0 ? n : 0;
-  } catch {
-    return 0; // storage blocked (e.g. some private windows)
-  }
-}
-
-function writeTotal(n: number) {
-  try {
-    localStorage.setItem(easterEggs.boopStorageKey, String(n));
-  } catch {
-    // Storage blocked: the count just won't survive a reload.
-  }
-}
+let total = 0;
 
 function boop() {
-  total = (total ?? readTotal()) + 1;
-  writeTotal(total);
+  total += 1;
   if (total % easterEggs.boopEvery === 0) {
     const n = total;
     listeners.forEach((listener) => listener(n));
@@ -43,7 +26,6 @@ export function useBoops(onMilestone?: MilestoneListener) {
   latest.current = onMilestone;
 
   useEffect(() => {
-    total ??= readTotal();
     const listener: MilestoneListener = (n) => latest.current?.(n);
     listeners.add(listener);
     return () => {
