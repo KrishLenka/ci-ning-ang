@@ -8,6 +8,7 @@ import { Travel } from "@/components/sections/Travel";
 import { Leadership } from "@/components/sections/Leadership";
 import { Contact } from "@/components/sections/Contact";
 import { BoopToast } from "@/components/ui/BoopToast";
+import { Quokka } from "@/components/Quokka";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
       </main>
       <Footer />
       <BoopToast />
+      <Quokka />
     </>
   );
 }

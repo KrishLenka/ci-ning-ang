@@ -1,6 +1,7 @@
 import { music, type Photo as PhotoData, type Song } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
+import { MusicDoodles } from "@/components/ui/Doodles";
 import { Section, SubHeading } from "@/components/ui/Section";
 
 const spotifySearch = (s: Song) =>
@@ -12,6 +13,7 @@ export function Music() {
 
   return (
     <Section id="music" eyebrow={music.eyebrow} heading={music.heading}>
+      <MusicDoodles />
       <div className="grid gap-10 md:grid-cols-2 md:gap-16">
         <Reveal>
           <SubHeading>{playing.title}</SubHeading>

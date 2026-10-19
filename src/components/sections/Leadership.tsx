@@ -1,6 +1,7 @@
 import { leadership, type LeadershipRole } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
+import { LeadershipDoodles } from "@/components/ui/Doodles";
 import { Section } from "@/components/ui/Section";
 
 /**
@@ -13,6 +14,7 @@ export function Leadership() {
 
   return (
     <Section id="leadership" eyebrow={leadership.eyebrow} heading={leadership.heading}>
+      <LeadershipDoodles />
       <div className="space-y-16">
         {spotlight.map((role) => (
           <div key={role.title + role.org}>

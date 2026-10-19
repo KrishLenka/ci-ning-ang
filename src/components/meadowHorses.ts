@@ -9,7 +9,8 @@
  * - At the shore it drinks, sometimes lingering before or after (random lengths).
  * - Random coats: chestnut quarter horse, bay thoroughbred, black, palomino,
  *   dapple grey, buckskin, paint, blanket and leopard appaloosa, each with
- *   random face markings and socks.
+ *   random face markings and socks; and, rarely (a third as often as any other
+ *   coat), a unicorn, which leaves a rainbow sparkle trail when it gallops.
  * - Horses near the shore show a soft, rippling reflection in the lake.
  * - Purely decorative (no clicks). Skipped entirely with reduced motion.
  *
@@ -103,7 +104,12 @@ export interface HorseCoat {
   /** spots / dapples */
   D?: string;
   pattern?: Pattern;
+  /** Unicorn extras: a golden horn, a pastel rainbow mane and tail, and a sparkle trail. */
+  unicorn?: boolean;
 }
+
+const RAINBOW = ["#ff7a9c", "#ffb35c", "#ffe25c", "#7fe08a", "#6ec4ff", "#b48cff"];
+const PASTEL_RAINBOW = ["#ff9dbb", "#ffc285", "#ffe98a", "#a6e8ae", "#9fd6ff", "#c9adff"];
 
 const WHITE = "#f4efe7", WHITE_SHADE = "#d8d1c6";
 
@@ -116,6 +122,7 @@ export const HORSE_COATS: HorseCoat[] = [
   { name: "Buckskin", B: "#d2a867", L: "#e5c185", S: "#ab8244", O: "#3a2713", M: "#1d1613", M2: "#0f0b09", P: "#231a16", Pd: "#150f0d", H: "#2a201b", N: "#5c4430" },
   { name: "Paint", B: "#a85a2c", L: "#c3753f", S: "#82431f", O: "#33180a", M: "#6e3214", M2: "#4f220b", H: "#3b2a20", N: "#6d3a22", pattern: "pinto" },
   { name: "Appaloosa (blanket)", B: "#6e4a33", L: "#8a6249", S: "#523525", O: "#25160d", M: "#2b201a", M2: "#18110d", P: "#3a2a20", Pd: "#271b14", H: "#3a2d25", N: "#4c3427", D: "#4a3122", pattern: "blanket" },
+  { name: "Unicorn", B: "#f8f5fc", L: "#ffffff", S: "#dcd5ea", O: "#6b5f88", M: "#ffb3c8", M2: "#d9c4ff", H: "#b8a2d6", N: "#ecc1d0", unicorn: true },
   { name: "Appaloosa (leopard)", B: "#ece6dc", L: "#faf6f0", S: "#cbc2b5", O: "#3d3228", M: "#8c7c6c", M2: "#6a5c4f", H: "#4a3d33", N: "#8a7d72", D: "#4b3426", pattern: "leopard" },
 ];
 
@@ -123,9 +130,10 @@ export const HORSE_COATS: HorseCoat[] = [
 /* Skeleton and poses (sprite px, facing right, hooves rest on y = FOOT_Y)  */
 /* ----------------------------------------------------------------------- */
 
-const GW = 50, GH = 38, UP = 4;
 const OFF = 2; // left margin so a streaming tail isn't clipped
-const ANCHOR_X = 24 + OFF, FOOT_Y = 36;
+const OFFY = 6; // top margin so a unicorn's long horn isn't clipped
+const GW = 50, GH = 38 + OFFY, UP = 4;
+const ANCHOR_X = 24 + OFF, FOOT_Y = 36 + OFFY;
 
 type Leg = [number, number]; // [upper, lower] angle in degrees from straight down; + swings forward
 type HeadPose = "up" | "run" | "mid" | "down";
@@ -165,7 +173,7 @@ const GALLOP = ["g0", "g1", "g2", "g3"];
 /* ----------------------------------------------------------------------- */
 
 // Parts, in drawing order (later ones cover earlier ones).
-const enum Part { None, FarLeg, Tail, Body, Neck, Head, Mane, Leg, Ear }
+const enum Part { None, FarLeg, Tail, Body, Neck, Head, Mane, Leg, Ear, Horn }
 
 interface Cell { part: Part; lower?: boolean; hoof?: boolean }
 interface Raster {
@@ -209,16 +217,18 @@ function makeMarkings(coat: HorseCoat, seed: number): Markings {
   } else if (coat.pattern === "dapple") {
     for (let x = 10; x < 36; x += 3.4) for (let y = 15; y < 25; y += 3.2) blobs.push([x + r() * 1.6, y + r() * 1.4, 0.9 + r() * 0.4]);
   }
+  const plain = coat.pattern === "leopard" || coat.unicorn;
   return {
-    face: faces[Math.floor(r() * faces.length)],
-    socks: coat.pattern === "leopard" ? [0, 0, 0, 0] : [sock(), sock(), sock(), sock()],
+    face: coat.unicorn ? "none" : faces[Math.floor(r() * faces.length)],
+    socks: plain ? [0, 0, 0, 0] : [sock(), sock(), sock(), sock()],
     blobs,
   };
 }
 
+const HORN_LEN = 9;
 const deg = (a: number) => (a * Math.PI) / 180;
 
-function rasterise(pose: Pose): Raster {
+function rasterise(pose: Pose, horn = false): Raster {
   const cells: Cell[] = Array.from({ length: GW * GH }, () => ({ part: Part.None }));
   const lift = pose.lift;
   const put = (x: number, y: number, c: Cell) => {
@@ -226,9 +236,9 @@ function rasterise(pose: Pose): Raster {
     cells[y * GW + x] = c;
   };
   const each = (x0: number, y0: number, x1: number, y1: number, test: (px: number, py: number) => Cell | null) => {
-    for (let y = Math.max(0, Math.floor(y0)); y <= Math.min(GH - 1, Math.ceil(y1)); y++) {
+    for (let y = Math.max(0, Math.floor(y0 + OFFY)); y <= Math.min(GH - 1, Math.ceil(y1 + OFFY)); y++) {
       for (let x = Math.max(0, Math.floor(x0 + OFF)); x <= Math.min(GW - 1, Math.ceil(x1 + OFF)); x++) {
-        const c = test(x + 0.5 - OFF, y + 0.5);
+        const c = test(x + 0.5 - OFF, y + 0.5 - OFFY);
         if (c) put(x, y, c);
       }
     }
@@ -303,8 +313,19 @@ function rasterise(pose: Pose): Raster {
   capsule(earBase, 0.85, earTip, 0.5, Part.Ear);
   capsule([earBase[0] + back[0] * 1.2, earBase[1] + back[1] * 1.2], 0.8, [earTip[0] + back[0] * 1.2, earTip[1] + back[1] * 1.2], 0.45, Part.Ear);
 
-  // Hand back grid coordinates (skeleton + left margin).
-  const g = (p: Vec): Vec => [p[0] + OFF, p[1]];
+  if (horn) {
+    // A unicorn's horn: from the forehead, pointing up and a little forward.
+    const fwd: Vec = [-back[0], -back[1]];
+    const hb: Vec = [headA[0] + hup[0] * 1.3 + fwd[0] * 1.9, headA[1] + hup[1] * 1.3 + fwd[1] * 1.9];
+    // Long and slender (about the length of the head) so the unicorn stands out from the horses.
+    // Tilted back toward the vertical (the head itself is angled nose-down), so it rises
+    // from the forehead instead of jutting forward like a muzzle.
+    const dx = hup[0] - fwd[0] * 0.2, dy = hup[1] - fwd[1] * 0.2, dl = Math.hypot(dx, dy) || 1;
+    capsule(hb, 1.0, [hb[0] + (dx / dl) * HORN_LEN, hb[1] + (dy / dl) * HORN_LEN], 0.28, Part.Horn);
+  }
+
+  // Hand back grid coordinates (skeleton + margins).
+  const g = (p: Vec): Vec => [p[0] + OFF, p[1] + OFFY];
   const f = { ...legs, ...near };
   return { cells, headA: g(headA), headB: g(headB), hup, feet: { fn: g(f.fn), ff: g(f.ff), hn: g(f.hn), hf: g(f.hf) } };
 }
@@ -312,7 +333,7 @@ function rasterise(pose: Pose): Raster {
 type Sprite = HTMLCanvasElement;
 
 function bakeFrame(pose: Pose, coat: HorseCoat, mk: Markings): Sprite {
-  const { cells, headA, headB, hup, feet } = rasterise(pose);
+  const { cells, headA, headB, hup, feet } = rasterise(pose, coat.unicorn);
   const at = (x: number, y: number) => (x < 0 || y < 0 || x >= GW || y >= GH ? undefined : cells[y * GW + x]);
   const filled = (x: number, y: number) => (at(x, y)?.part ?? Part.None) !== Part.None;
   const colors: (string | null)[] = new Array(GW * GH).fill(null);
@@ -341,7 +362,12 @@ function bakeFrame(pose: Pose, coat: HorseCoat, mk: Markings): Sprite {
           break;
         case Part.Tail:
         case Part.Mane:
-          col = (x + y * 2) % 5 === 0 ? coat.M2 : coat.M;
+          // A unicorn's hair runs through pastel rainbow bands.
+          if (coat.unicorn) col = PASTEL_RAINBOW[Math.floor((x * 0.6 + y) / 2.2) % PASTEL_RAINBOW.length];
+          else col = (x + y * 2) % 5 === 0 ? coat.M2 : coat.M;
+          break;
+        case Part.Horn:
+          col = (x + y * 2) % 3 === 0 ? "#e0a93c" : (x + y) % 2 ? "#f6cf63" : "#fff0b8"; // twisted gold
           break;
         case Part.Ear:
           col = coat.pattern === "leopard" ? coat.S : coat.B;
@@ -358,11 +384,11 @@ function bakeFrame(pose: Pose, coat: HorseCoat, mk: Markings): Sprite {
           const belowEmpty = !filled(x, y + 1);
           let tone: "B" | "L" | "S" = "B";
           if (aboveEmpty) tone = "L";
-          else if (c.part === Part.Body && py - (21 - lift) > 2.6) tone = "S";
+          else if (c.part === Part.Body && py - OFFY - (21 - lift) > 2.6) tone = "S";
           else if (c.part !== Part.Body && belowEmpty) tone = "S";
           col = coat[tone];
           // Coat patterns live in body space, so they stay put while the legs move.
-          const bx = px - OFF, by = py + lift;
+          const bx = px - OFF, by = py - OFFY + lift;
           if (coat.pattern === "pinto" && c.part !== Part.Head && inBlob(bx, by)) col = tone === "S" ? WHITE_SHADE : WHITE;
           if (coat.pattern === "blanket" && c.part === Part.Body) {
             const wob = Math.sin(bx * 1.7) * 0.8;
@@ -436,8 +462,12 @@ type Step =
   | { kind: "drink"; dur: number }
   | { kind: "turn" };
 
+interface Sparkle { x: number; y: number; vx: number; vy: number; age: number; life: number; color: string; size: number }
+
 interface Horse {
   route: number; sprites: Record<string, Sprite>; coat: number;
+  /** unicorns only: the rainbow sparkles left behind while galloping */
+  sparkles: Sparkle[]; sparkleT: number;
   steps: Step[]; t: number; d: number; stride: number; facing: 1 | -1; frame: string;
 }
 
@@ -524,7 +554,10 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
   function spawn(route: number) {
     const taken = new Set([lastCoat[route], ...horses.filter(Boolean).map((h) => h!.coat)]);
     const choices = HORSE_COATS.map((_, i) => i).filter((i) => !taken.has(i));
-    const coat = choices[Math.floor(Math.random() * choices.length)];
+    // Every coat is equally likely, except the unicorn: a third as often as any other.
+    const weight = (i: number) => (HORSE_COATS[i].unicorn ? 1 / 3 : 1);
+    let pick = Math.random() * choices.reduce((sum, i) => sum + weight(i), 0);
+    const coat = choices.find((i) => (pick -= weight(i)) < 0) ?? choices[choices.length - 1];
     lastCoat[route] = coat;
     const settle: Step = { kind: "stand", dur: rand(0.5, 1.1) };
     const linger = (): Step => ({ kind: "stand", dur: rand(3, 10) });
@@ -534,7 +567,7 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
     horses[route] = {
       route, coat, sprites: bakeHorse(HORSE_COATS[coat], Math.floor(Math.random() * 1e9)),
       steps: [{ kind: "run", dir: 1 }, ...middle, { kind: "stand", dur: 0.4 }, { kind: "turn" }, { kind: "stand", dur: 0.3 }, { kind: "run", dir: -1 }],
-      t: 0, d: 0, stride: 0, facing: 1, frame: "g0",
+      t: 0, d: 0, stride: 0, facing: 1, frame: "g0", sparkles: [], sparkleT: 0,
     };
   }
 
@@ -553,6 +586,11 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
       const tr = tracks[i];
       const step = h.steps[0];
       h.t += dt;
+      for (let k = h.sparkles.length - 1; k >= 0; k--) {
+        const sp = h.sparkles[k];
+        sp.age += dt; sp.x += sp.vx * dt; sp.y += sp.vy * dt;
+        if (sp.age > sp.life) h.sparkles.splice(k, 1);
+      }
       if (step.kind === "run") {
         // Ease in from the tree, ease out at the shore (and the reverse on the way back).
         const done = step.dir === 1 ? h.d : tr.len - h.d;
@@ -564,6 +602,21 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
         h.facing = (dir[0] * step.dir >= 0 ? 1 : -1);
         h.stride += move / (STRIDE * scaleAt(i, h.d));
         h.frame = v < SPEED * 0.2 ? "standA" : GALLOP[Math.floor(h.stride * 4) % 4];
+        if (HORSE_COATS[h.coat].unicorn && v > SPEED * 0.3) {
+          // Rainbow sparkles shed from the hindquarters, drifting back and fading.
+          h.sparkleT -= dt;
+          while (h.sparkleT <= 0) {
+            h.sparkleT += 0.035;
+            const { p: [gx, gy] } = trackAt(tr, h.d);
+            const sc = scaleAt(i, h.d);
+            h.sparkles.push({
+              x: gx - h.facing * rand(10, 18) * sc, y: gy - rand(10, 24) * sc,
+              vx: -h.facing * rand(4, 14), vy: rand(-6, 6),
+              age: 0, life: rand(0.5, 0.85), color: RAINBOW[Math.floor(h.stride * 6 + Math.random() * 2) % RAINBOW.length],
+              size: sc * rand(1.1, 1.8),
+            });
+          }
+        }
         if (left - move <= 0.01) {
           h.steps.shift(); h.t = 0;
           if (step.dir === -1) { horses[i] = null; next[i] = rand(every[0], every[1]); }
@@ -635,7 +688,8 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
       const sh = img.height / bands;
       const shift = Math.sin(clock * 2.2 + i * 0.7 + gx * 0.05) * u * 0.35;
       ctx.save();
-      ctx.globalAlpha = ((0.4 * (1 - i / bands) + 0.05) * reach) * alphaAt(h.d);
+      // Fades toward the top, but gently enough that heads (and a unicorn's horn) still show.
+      ctx.globalAlpha = ((0.4 * (1 - 0.7 * i / bands) + 0.05) * reach) * alphaAt(h.d);
       ctx.translate(x + shift, yMirror + (hh / bands) * i + hh / bands / 2);
       ctx.scale(h.facing, -1);
       // Bands counted up from the hooves (rows above FOOT_Y are blank margin).
@@ -674,6 +728,20 @@ export function createMeadowHorses(opts: MeadowHorsesOptions): MeadowHorses {
     ctx.ellipse(x, y - 0.4 * u, 15 * u, 2 * u, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+    for (const sp of h.sparkles) {
+      // twinkle in quickly, then shrink and fade
+      const k = sp.age / sp.life;
+      const z = sp.size * cs * dpr * (k < 0.2 ? 0.6 + k * 2 : 1.4 - k);
+      ctx.save();
+      ctx.globalAlpha = a * (k < 0.15 ? k / 0.15 : 1 - (k - 0.15) / 0.85);
+      ctx.fillStyle = sp.color;
+      const px = toX(sp.x), py = toY(sp.y);
+      ctx.fillRect(px - z * 0.3, py - z * 1.5, z * 0.6, z * 3); // a little four-point star
+      ctx.fillRect(px - z * 1.5, py - z * 0.3, z * 3, z * 0.6);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(px - z * 0.3, py - z * 0.3, z * 0.6, z * 0.6);
+      ctx.restore();
+    }
     blit(h.sprites[h.frame], x, y, u, h.facing, tiltAt(h));
     ctx.restore();
   }

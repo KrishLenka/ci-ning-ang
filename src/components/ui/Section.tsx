@@ -12,7 +12,7 @@ type SectionProps = {
 /** A page section: handwritten eyebrow, big serif heading with a faint lavender glow, then content. */
 export function Section({ id, eyebrow, heading, children, className = "" }: SectionProps) {
   return (
-    <section id={id} className={`relative overflow-x-clip px-5 py-20 sm:px-8 md:py-28 ${className}`}>
+    <section id={id} className={`relative isolate overflow-x-clip px-5 py-20 sm:px-8 md:py-28 ${className}`}>
       <div className="mx-auto max-w-6xl">
         <Reveal className="relative isolate mb-10 md:mb-14">
           <span

@@ -3,6 +3,7 @@ import { Mail } from "lucide-react";
 import { contact } from "@/content/site";
 import { InstagramIcon, LinkedInIcon, SpotifyIcon } from "@/components/ui/BrandIcons";
 import { Reveal } from "@/components/ui/Reveal";
+import { ContactDoodles } from "@/components/ui/Doodles";
 import { Section } from "@/components/ui/Section";
 
 type Tile = { label: string; href: string; Icon: ComponentType<SVGProps<SVGSVGElement>> };
@@ -21,6 +22,7 @@ const square =
 export function Contact() {
   return (
     <Section id="contact" eyebrow={contact.eyebrow} heading={contact.heading}>
+      <ContactDoodles />
       <div className="max-w-2xl">
         <Reveal>
           <p className="text-lg leading-relaxed text-ink md:text-xl">{contact.invitation}</p>

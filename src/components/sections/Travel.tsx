@@ -3,6 +3,7 @@ import { MapPin } from "lucide-react";
 import { travel, type Postcard } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
+import { TravelDoodles } from "@/components/ui/Doodles";
 import { Section, SubHeading } from "@/components/ui/Section";
 
 const TILTS = [-1.5, 1, -0.5, 1.5, -1, 0.5];
@@ -15,6 +16,7 @@ export function Travel() {
       eyebrow={travel.eyebrow}
       heading={travel.heading}
     >
+      <TravelDoodles />
       <div className="grid gap-8 md:grid-cols-2 md:gap-10">
         {travel.postcards.map((card, i) => (
           <Reveal key={`${card.place}-${card.date}`} delay={(i % 2) * 0.08}>
