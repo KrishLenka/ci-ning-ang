@@ -1,7 +1,7 @@
 import { leadership, type LeadershipRole } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
-import { LeadershipDoodles } from "@/components/ui/Doodles";
+import { LeadershipTitleDoodles, LeadershipDoodles } from "@/components/ui/Doodles";
 import { Section } from "@/components/ui/Section";
 
 /**
@@ -13,7 +13,7 @@ export function Leadership() {
   const others = leadership.roles.filter((r) => !r.events?.length);
 
   return (
-    <Section id="leadership" eyebrow={leadership.eyebrow} heading={leadership.heading}>
+    <Section id="leadership" eyebrow={leadership.eyebrow} heading={leadership.heading} titleDoodles={<LeadershipTitleDoodles />}>
       <LeadershipDoodles />
       <div className="space-y-16">
         {spotlight.map((role) => (

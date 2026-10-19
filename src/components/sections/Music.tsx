@@ -1,7 +1,7 @@
 import { music, type Photo as PhotoData, type Song } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
-import { MusicDoodles } from "@/components/ui/Doodles";
+import { MusicTitleDoodles, MusicDoodles, MusicNoteAccent } from "@/components/ui/Doodles";
 import { Section, SubHeading } from "@/components/ui/Section";
 
 const spotifySearch = (s: Song) =>
@@ -12,12 +12,13 @@ export function Music() {
   const songs = onRepeat.songs.filter((s) => s.title.trim());
 
   return (
-    <Section id="music" eyebrow={music.eyebrow} heading={music.heading}>
+    <Section id="music" eyebrow={music.eyebrow} heading={music.heading} titleDoodles={<MusicTitleDoodles />}>
       <MusicDoodles />
       <div className="grid gap-10 md:grid-cols-2 md:gap-16">
         <Reveal>
           <SubHeading>{playing.title}</SubHeading>
           <p className="mt-4 text-base leading-relaxed text-ink md:text-lg">{playing.text}</p>
+          <MusicNoteAccent />
         </Reveal>
 
         <Reveal delay={0.1}>

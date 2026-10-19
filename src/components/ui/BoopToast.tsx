@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { easterEggs } from "@/content/site";
 import { useBoops } from "@/hooks/useBoops";
@@ -30,23 +30,58 @@ function overHero(top: number) {
   return !!hero && top < hero.bottom;
 }
 
-/** The secret handwritten "50 boops!" note. Never takes clicks and never moves the layout. */
+/** Split a note into words, remembering where each starts (in letters, spaces counted). */
+function wordsOf(text: string) {
+  let at = 0;
+  return text.split(" ").map((word) => {
+    const start = at;
+    at += Array.from(word).length + 1;
+    return { word, start };
+  });
+}
+
+type ToastListener = (text: string, hold: number) => void;
+const toastListeners = new Set<ToastListener>();
+
+/**
+ * Show a handwritten note in the boop-toast spot, e.g. "copied to clipboard!". `hold` is how
+ * long it stays after its letters have waved (s); a new note replaces one that's showing.
+ */
+export function showToast(text: string, hold = HOLD_AFTER_WAVE) {
+  toastListeners.forEach((listener) => listener(text, hold));
+}
+
+/**
+ * The handwritten note: the secret "50 boops!" milestones, and anything sent with showToast().
+ * Never takes clicks and never moves the layout.
+ */
 export function BoopToast() {
   const [message, setMessage] = useState<{ id: number; text: string; top: number } | null>(null);
   const [onVideo, setOnVideo] = useState(true);
   const timer = useRef<number>();
   const reduced = useReducedMotion();
 
-  useBoops((total) => {
-    const text = easterEggs.boopMessage(total);
+  const show = (text: string, hold: number) => {
     const top = messageTop();
     const letters = Array.from(text).length;
-    const showMs = (FADE_IN + letters * WAVE_STAGGER + WAVE_BUMP + HOLD_AFTER_WAVE) * 1000;
+    const showMs = (FADE_IN + letters * WAVE_STAGGER + WAVE_BUMP + hold) * 1000;
     window.clearTimeout(timer.current);
     setOnVideo(overHero(top));
-    setMessage({ id: total, text, top });
+    setMessage({ id: Date.now(), text, top });
     timer.current = window.setTimeout(() => setMessage(null), showMs);
-  });
+  };
+  const showRef = useRef(show);
+  showRef.current = show;
+
+  useBoops((total) => show(easterEggs.boopMessage(total), HOLD_AFTER_WAVE));
+
+  useEffect(() => {
+    const listener: ToastListener = (text, hold) => showRef.current(text, hold);
+    toastListeners.add(listener);
+    return () => {
+      toastListeners.delete(listener);
+    };
+  }, []);
 
   // Keep the colour right if the visitor scrolls while the note is showing.
   useEffect(() => {
@@ -69,25 +104,33 @@ export function BoopToast() {
             animate={{ opacity: 1, y: 0, transition: { duration: FADE_IN, ease: "easeOut" } }}
             exit={{ opacity: 0, y: -12, transition: { duration: 0.6, ease: "easeIn" } }}
             style={{ top: message.top }}
-            className={`absolute inset-x-0 -mt-[0.5em] whitespace-pre px-4 text-center font-hand text-[1.7rem] leading-none transition-[color,text-shadow] duration-300 md:text-[2rem] ${
+            className={`absolute inset-x-0 -mt-[0.5em] px-4 text-center font-hand text-[1.7rem] leading-[1.15] transition-[color,text-shadow] duration-300 md:text-[2rem] ${
               onVideo ? "glow-warm text-cream" : "glow-soft text-plum"
             }`}
           >
-            {Array.from(message.text).map((char, i) => (
-              <span
-                key={i}
-                aria-hidden
-                className="inline-block"
-                style={
-                  reduced
-                    ? undefined
-                    : {
-                        animation: `boop-wave ${WAVE_BUMP}s ease-in-out ${FADE_IN + 0.05 + i * WAVE_STAGGER}s both`,
+            {/* Words stay whole (a long note wraps between words); the wave still runs through
+                every letter in order. */}
+            {wordsOf(message.text).map(({ word, start }, w) => (
+              <Fragment key={w}>
+                {w > 0 && " "}
+                <span aria-hidden className="inline-block whitespace-nowrap">
+                  {Array.from(word).map((char, j) => (
+                    <span
+                      key={j}
+                      className="inline-block"
+                      style={
+                        reduced
+                          ? undefined
+                          : {
+                              animation: `boop-wave ${WAVE_BUMP}s ease-in-out ${FADE_IN + 0.05 + (start + j) * WAVE_STAGGER}s both`,
+                            }
                       }
-                }
-              >
-                {char}
-              </span>
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              </Fragment>
             ))}
           </motion.p>
         )}

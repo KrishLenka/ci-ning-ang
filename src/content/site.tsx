@@ -67,9 +67,7 @@ export const about = {
   },
   // TODO: rewrite in her own words.
   paragraphs: [
-    "I'm Ning, a pre-vet student at Rutgers double majoring in Animal Sciences and Music, which mostly means my backpack holds both a stethoscope and sheet music.",
-    "I grew up as the kid who stopped for every dog on the sidewalk, and somewhere along the way that turned into wanting to spend my life caring for animals. Now I'm working toward vet school one clinic shift at a time.",
-    "When I'm not studying, you'll find me in a practice room, at dance rehearsal, or planning something fun for campus with RUPA.",
+    "[description]"
   ],
   /** `piglet: true` puts a little napping piglet next to that fact (clickable, like the hero's). */
   facts: [
@@ -96,7 +94,7 @@ export const experiences = {
   heading: "Path to Vet School",
   // TODO
   intro:
-    "I want to be a vet because animals can't tell us when something's wrong, and I want to be the person who notices. Every shift, shadowing day and late-night study session has made me more sure that this is what I'm meant to do.",
+    "[Description]",
   // Most recent first. TODO: descriptions, and any other experiences she wants to add.
   experiences: [
     {
@@ -134,7 +132,7 @@ export const music = {
   playing: {
     title: "What I play",
     // TODO: her instrument and ensembles.
-    text: "I've played piano since I was six, and at Rutgers I perform with the university orchestra and accompany friends whenever they'll let me. Music is the place I go to think, and the one class I never want to end.",
+    text: "[Description]",
     // TODO: add her photos under public/images/music/. One photo shows large; more make a collage.
     photos: [
       { src: "", alt: "Ning performing on stage" }, // TODO
@@ -147,9 +145,9 @@ export const music = {
     songs: [
       { title: "My Everything", artist: "Ariana Grande", art: "/images/my_everything.jpeg" },
       { title: "Fever", artist: "Dua Lipa", art: "/images/fever.jpeg" },
-      { title: "", artist: "", art: "" },
-      { title: "", artist: "", art: "" },
-      { title: "", artist: "", art: "" },
+      { title: "Over the Moon", artist: "The Marías", art: "/images/over_the_moon.jpg" },
+      { title: "You'll Be in My Heart", artist: "NIKI", art: "/images/youll_be_in_my_heart.jpeg" },
+      { title: "Purple", artist: "Olivia Rodrigo", art: "/images/purple.png" },
     ] as Song[],
   },
 };
@@ -179,6 +177,14 @@ export const travel = {
       date: "2026-07",
       photo: "",
       alt: "Photo from Nova Scotia and Prince Edward Island",
+      note: "[note]",
+    },
+    {
+      place: "Bermuda",
+      country: "",
+      date: "2026-01",
+      photo: "",
+      alt: "Photo from Bermuda",
       note: "[note]",
     },
     {
@@ -234,38 +240,38 @@ export const leadership = {
       dates: "[dates]", // TODO
       // TODO
       description:
-        "I help plan the events that make campus feel like home, from the first pitch meeting to cleaning up after the last guest leaves.",
+        "[Description]",
       // TODO: her real events.
       events: [
         {
-          name: "Finals Week Puppy Pause",
-          date: "Dec 2024",
-          photo: { src: "", alt: "Students petting therapy dogs in the student center" },
-          blurb: "Brought therapy dogs to campus and ran the line of 400+ very stressed students.",
+          name: "Beats on the Banks",
+          date: "Apr 2026",
+          photo: { src: "", alt: "" },
+          blurb: "[Description]",
         },
         {
-          name: "Spring Fling Silent Disco",
-          date: "Apr 2024",
-          photo: { src: "", alt: "Students dancing with glowing headphones" },
-          blurb: "Booked the DJs, handled the budget and danced for exactly one song.",
+          name: "Winter Wonderland Coffeehouse",
+          date: "Nov 2025",
+          photo: { src: "", alt: "" },
+          blurb: "[Description]",
         },
         {
-          name: "Welcome Week Night Market",
-          date: "Sep 2024",
-          photo: { src: "", alt: "Food stalls and string lights on the College Ave lawn" },
-          blurb: "Coordinated 20 student vendors and the string lights everyone took photos under.",
+          name: "Spookeasy",
+          date: "Oct 2026",
+          photo: { src: "", alt: "" },
+          blurb: "[Description]",
         },
       ],
     },
     {
-      title: "Usher",
+      title: "Assistant House Director",
       org: "Princeton Symphony Orchestra",
       dates: "[dates]", // TODO
       description: "[description]", // TODO
     },
     {
       // TODO: optional; confirm she wants this one, and the organization.
-      title: "Community Service Officer",
+      title: "Mounted Patrol",
       org: "[Organization]",
       dates: "[dates]",
       description: "[description]",
@@ -280,16 +286,15 @@ export const leadership = {
 export const contact = {
   eyebrow: "say hi",
   heading: "Let's talk",
-  invitation: "Whether it's about animals, music or your dog's name, I'd love to hear from you.", // TODO
+  invitation: "Whether it's about animals, music, or life, I'd love to hear from you.", // TODO
   /**
    * Square link tiles. A tile whose link is empty shows dimmed and isn't clickable.
-   * `email` becomes a mailto: link, so the address itself never appears on the page.
+   * The email tile copies `email` to the clipboard and says so in a little handwritten note.
    */
   links: {
     instagram: "https://www.instagram.com/cicia3/",
-    spotify: "https://open.spotify.com/user/mitsuhapup",
     linkedin: "https://www.linkedin.com/in/ci-ning-ang-045116347",
-    email: "", // TODO: her email address
+    email: "ciningang333@gmail.com",
   },
 };
 

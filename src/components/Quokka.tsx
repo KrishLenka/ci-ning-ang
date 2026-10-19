@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { useBoops } from "@/hooks/useBoops";
 
 // A little quokka that now and then peeks in from the left or right edge of the screen while the
 // visitor is reading the content (never over the hero), like a puppy with its paws on the edge
 // of its playpen, turned on its side. Its paws come onto the edge first, then its head pops out
 // behind them. It puffs out its cheeks and gives a small retro nod every couple of seconds, then slips back out
-// after 5-10 s, or right away if tapped or if the visitor scrolls back up to the hero.
+// after 5-10 s, or right away if tapped (with a little heart) or if the visitor scrolls back up
+// to the hero.
 //
 // The peek is drawn as if from the bottom edge, then the whole thing is turned a quarter so
 // that "bottom" becomes the left or right side of the screen.
@@ -47,6 +49,9 @@ const PUFF = [
   "..OOOOOOOOOOOOOOOOOO..",
 ];
 const PAW = [".OOOO.", "OBLLBO", "OLLLLO"];
+// A little heart that pops out when it's tapped, like the piglets' (7 x 6).
+const HEART = [".DD.DD.", "DRRDRRD", "DRRRRRD", ".DRRRD.", "..DRD..", "...D..."];
+const HEART_SCALE = 2; // whole screen px per art pixel (14 x 12 px), about a piglet's heart
 
 const HEAD_W = 22, HEAD_H = 15, PAW_W = 6, PAW_H = 3;
 const BOX_H = HEAD_H + 1; // the chin rests one pixel above the edge, behind the paws
@@ -56,6 +61,7 @@ const NOD_DROP = 2 * SCALE; // how far the head dips: 2 art pixels, in whole scr
 const PALETTE: Record<string, string> = {
   O: "#4a3325", B: "#a9825f", L: "#ecd6ba", I: "#e8a596", E: "#1f140e",
   W: "#ffffff", N: "#2e1f17", M: "#6e4232", P: "#f4a6a4", C: "#f6e4cc",
+  R: "#ff86ad", D: "#c23f6c",
 };
 
 function sprite(rows: string[]) {
@@ -70,8 +76,8 @@ function sprite(rows: string[]) {
   return c.toDataURL();
 }
 
-let art: { calm: string; puff: string; paw: string } | null = null;
-const getArt = () => (art ??= { calm: sprite(CALM), puff: sprite(PUFF), paw: sprite(PAW) });
+let art: { calm: string; puff: string; paw: string; heart: string } | null = null;
+const getArt = () => (art ??= { calm: sprite(CALM), puff: sprite(PUFF), paw: sprite(PAW), heart: sprite(HEART) });
 
 const rand = ([a, b]: [number, number]) => a + Math.random() * (b - a);
 
@@ -82,6 +88,9 @@ type Peek = { id: number; side: "left" | "right"; top: number; phase: Phase; qui
 
 export function Quokka() {
   const [peek, setPeek] = useState<Peek | null>(null);
+  /** the heart popping out of a tapped quokka, in screen px (one at a time) */
+  const [heart, setHeart] = useState<{ id: number; x: number; y: number } | null>(null);
+  const boop = useBoops(); // a tapped quokka counts toward the piglets' boop total
   const reduced = useReducedMotion();
   const hideRef = useRef<(quick: boolean) => void>(() => {});
   const state = useRef({ inContent: false, wait: rand(FIRST_AFTER), showing: false, timers: [] as number[] });
@@ -155,8 +164,24 @@ export function Quokka() {
     return () => { window.clearTimeout(start); window.clearInterval(every); window.clearTimeout(up); };
   }, [nodding]);
 
-  if (!peek) return null;
   const A = getArt();
+  const heartLayer = heart && (
+    <motion.img
+      key={heart.id}
+      src={A.heart}
+      alt=""
+      aria-hidden
+      draggable={false}
+      className="pointer-events-none fixed z-40 select-none"
+      style={{ left: heart.x, top: heart.y, width: 7 * HEART_SCALE, height: 6 * HEART_SCALE, imageRendering: "pixelated" }}
+      // pops out, floats up a little and fades
+      initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.4, y: 0 }}
+      animate={reduced ? { opacity: [0, 1, 0] } : { opacity: [0, 1, 1, 0], scale: [0.4, 1.15, 1, 1], y: -22 }}
+      transition={{ duration: 0.9, ease: "easeOut" }}
+      onAnimationComplete={() => setHeart(null)}
+    />
+  );
+  if (!peek) return <>{heartLayer}</>;
   const { phase, quick } = peek;
   const headUp = phase === "up" || phase === "puff";
   const pawsUp = phase !== "gone";
@@ -173,12 +198,25 @@ export function Quokka() {
 
   const pct = (v: number, of: number) => `${(v / of) * 100}%`;
 
+  const tapped = (box: DOMRect) => {
+    // Only the first tap counts: it's already ducking away after that.
+    if (!state.current.showing) return;
+    // just in front of its face, toward the middle of the screen
+    const x = Math.round(peek.side === "left" ? box.right + 2 : box.left - 7 * HEART_SCALE - 2);
+    const y = Math.round(box.top + box.height / 2 - 6 * HEART_SCALE);
+    setHeart({ id: Date.now(), x, y });
+    boop();
+    hideRef.current(true);
+  };
+
   return (
+    <>
+    {heartLayer}
     <button
       key={peek.id}
       type="button"
       aria-label="A quokka peeking in. Tap to shoo it away"
-      onClick={() => hideRef.current(true)}
+      onClick={(e) => tapped(e.currentTarget.getBoundingClientRect())}
       // the turned peek's footprint: as wide as the head is tall, as tall as it is wide
       className="fixed z-40 block cursor-pointer overflow-visible bg-transparent p-0"
       style={{ width: BOX_H * SCALE, height: HEAD_W * SCALE, top: peek.top, [peek.side]: 0 }}
@@ -232,5 +270,6 @@ export function Quokka() {
       ))}
       </div>
     </button>
+    </>
   );
 }

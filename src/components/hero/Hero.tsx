@@ -48,8 +48,7 @@ export function Hero() {
           Horses walk in front of the piglets. */}
       <HeroStage className="-z-30">
         <BackgroundVideo src={site.video} still={site.videoStill} className="-z-40" />
-        {/* firstCoat="Unicorn": the first horse on every load is the unicorn (remove to go back to random). */}
-        <MeadowHorses className="-z-[29]" firstAfter={[4, 4]} firstCoat="Unicorn" />
+        <MeadowHorses className="-z-[29]" firstAfter={[4, 4]} />
         <MeadowPiglets
           className="-z-30"
           apiRef={pigletsApi}

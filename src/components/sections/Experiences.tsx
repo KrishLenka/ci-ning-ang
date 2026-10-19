@@ -2,12 +2,12 @@ import { PawPrint } from "lucide-react";
 import { experiences } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
-import { ExperiencesDoodles } from "@/components/ui/Doodles";
+import { ExperiencesTitleDoodles, ExperiencesDoodles } from "@/components/ui/Doodles";
 import { Section } from "@/components/ui/Section";
 
 export function Experiences() {
   return (
-    <Section id="experiences" eyebrow={experiences.eyebrow} heading={experiences.heading}>
+    <Section id="experiences" eyebrow={experiences.eyebrow} heading={experiences.heading} titleDoodles={<ExperiencesTitleDoodles />}>
       <ExperiencesDoodles />
       <Reveal>
         <p className="max-w-2xl text-base leading-relaxed text-ink md:text-lg">{experiences.intro}</p>

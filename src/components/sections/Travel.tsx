@@ -3,7 +3,7 @@ import { MapPin } from "lucide-react";
 import { travel, type Postcard } from "@/content/site";
 import { Photo } from "@/components/ui/Photo";
 import { Reveal } from "@/components/ui/Reveal";
-import { TravelDoodles } from "@/components/ui/Doodles";
+import { TravelDoodles, TravelTitleDoodles } from "@/components/ui/Doodles";
 import { Section, SubHeading } from "@/components/ui/Section";
 
 const TILTS = [-1.5, 1, -0.5, 1.5, -1, 0.5];
@@ -15,6 +15,7 @@ export function Travel() {
       id="travel"
       eyebrow={travel.eyebrow}
       heading={travel.heading}
+      titleDoodles={<TravelTitleDoodles />}
     >
       <TravelDoodles />
       <div className="grid gap-8 md:grid-cols-2 md:gap-10">
