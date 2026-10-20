@@ -20,22 +20,27 @@ export function Section({ id, eyebrow, heading, children, className = "", titleD
     <section id={id} className={`relative isolate overflow-x-clip px-5 py-20 sm:px-8 md:py-28 ${className}`}>
       <div className="mx-auto max-w-6xl">
         <Reveal className="relative isolate mb-10 md:mb-14">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -left-16 top-1/2 -z-10 h-64 w-[34rem] -translate-y-1/2 rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(138,92,196,0.16), rgba(138,92,196,0.06) 55%, rgba(138,92,196,0))",
-            }}
-          />
           <p className="font-hand text-2xl text-lilac md:text-[1.7rem]">{eyebrow}</p>
           {/* The same gap sits between the heading and the first doodle and between the doodles.
               On phones the row may use a little of the side margin; on very narrow ones the
               doodles wrap neatly below the heading instead. */}
           <div className="-mr-3 flex flex-wrap items-center gap-x-3 gap-y-2 sm:mr-0 sm:gap-x-5 md:gap-x-7">
-            <h2 className="font-heading text-[clamp(2.6rem,7vw,4.5rem)] italic leading-[0.95] tracking-[-0.02em] text-ink">
-              {heading}
-            </h2>
+            {/* The soft lavender glow is sized to the heading (4rem past each end), so a short
+                title like "Music" gets a short glow. It's centred a little above the heading so it
+                also sits behind the eyebrow. */}
+            <div className="relative">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -left-16 -right-16 top-[25%] -z-10 h-64 -translate-y-1/2 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, rgba(138,92,196,0.16), rgba(138,92,196,0.06) 55%, rgba(138,92,196,0))",
+                }}
+              />
+              <h2 className="font-heading text-[clamp(2.6rem,7vw,4.5rem)] italic leading-[0.95] tracking-[-0.02em] text-ink">
+                {heading}
+              </h2>
+            </div>
             {titleDoodles && (
               <div
                 aria-hidden

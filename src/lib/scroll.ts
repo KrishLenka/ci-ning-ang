@@ -15,6 +15,8 @@ export function scrollToId(id: string) {
 
   const target = document.getElementById(id);
   if (!target) return; // section not built yet
+  // Land exactly on the section's top edge (no hero peeking in above "A little about me").
+  // Every section starts with enough empty padding that its heading still clears the navbar.
   target.scrollIntoView({ behavior, block: "start" });
   history.replaceState(null, "", `#${id}`);
 }

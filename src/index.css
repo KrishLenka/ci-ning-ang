@@ -12,10 +12,6 @@
     --radius: 9999px;
   }
 
-  html {
-    scroll-padding-top: 6rem;
-  }
-
   body {
     @apply bg-paper font-body text-ink antialiased;
   }

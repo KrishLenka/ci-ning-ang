@@ -185,12 +185,21 @@ function Spot({ at, tilt = 0, children }: { at: string; tilt?: number; children:
 
 /**
  * One doodle beside a section title (smaller screens). A fixed size, so it never gets tiny;
- * wide ones (the paw trail, the map) take a wider box at the same height. Kept upright, so
- * the even spacing between them reads as even.
+ * wide ones (the paw trail, the map) take a wider box at the same height. `tilt` turns it in
+ * place (the spacing is unaffected); the sets below alternate left and right.
  */
-function TitleBit({ wide = false, children }: { wide?: boolean; tilt?: number; children: ReactNode }) {
-  return <div className={`h-10 shrink-0 md:h-14 ${wide ? "w-12 md:w-20" : "w-10 md:w-14"}`}>{children}</div>;
+function TitleBit({ wide = false, tilt = 0, children }: { wide?: boolean; tilt?: number; children: ReactNode }) {
+  return (
+    <div
+      className={`h-10 shrink-0 md:h-14 ${wide ? "w-12 md:w-20" : "w-10 md:w-14"}`}
+      style={tilt ? { transform: `rotate(${tilt}deg)` } : undefined}
+    >
+      {children}
+    </div>
+  );
 }
+
+const LEFT = -30, RIGHT = 30; // degrees, for the title doodles
 
 const fill = "block h-full w-full";
 
@@ -293,8 +302,8 @@ export function ContactDoodles() {
 export function ExperiencesTitleDoodles() {
   return (
     <>
-      <TitleBit wide><PawTrailIcon className={fill} /></TitleBit>
-      <TitleBit tilt={14}><Stethoscope strokeWidth={stroke} className={fill} /></TitleBit>
+      <TitleBit wide tilt={LEFT}><PawTrailIcon className={fill} /></TitleBit>
+      <TitleBit tilt={RIGHT}><Stethoscope strokeWidth={stroke} className={fill} /></TitleBit>
     </>
   );
 }
@@ -302,9 +311,9 @@ export function ExperiencesTitleDoodles() {
 export function MusicTitleDoodles() {
   return (
     <>
-      <TitleBit tilt={-8}><Music2 strokeWidth={stroke} className={fill} /></TitleBit>
-      <TitleBit tilt={-6}><GrandPianoIcon className={fill} /></TitleBit>
-      <TitleBit tilt={8}><SixteenthNotesIcon className={fill} /></TitleBit>
+      <TitleBit tilt={LEFT}><Music2 strokeWidth={stroke} className={fill} /></TitleBit>
+      <TitleBit tilt={RIGHT}><GrandPianoIcon className={fill} /></TitleBit>
+      <TitleBit tilt={LEFT}><SixteenthNotesIcon className={fill} /></TitleBit>
     </>
   );
 }
@@ -312,8 +321,9 @@ export function MusicTitleDoodles() {
 export function TravelTitleDoodles() {
   return (
     <>
-      <TitleBit tilt={-6}><Plane strokeWidth={stroke} className={fill} /></TitleBit>
-      <TitleBit wide tilt={-4}><TreasureMapIcon className={fill} /></TitleBit>
+      {/* turned well left, so its nose points up-left, away from the way the map leans */}
+      <TitleBit tilt={-75}><Plane strokeWidth={stroke} className={fill} /></TitleBit>
+      <TitleBit wide tilt={RIGHT}><TreasureMapIcon className={fill} /></TitleBit>
     </>
   );
 }
@@ -321,8 +331,8 @@ export function TravelTitleDoodles() {
 export function LeadershipTitleDoodles() {
   return (
     <>
-      <TitleBit tilt={-6}><RupaLogoIcon className={fill} /></TitleBit>
-      <TitleBit tilt={-8}><PartyPopper strokeWidth={stroke} className={fill} /></TitleBit>
+      <TitleBit tilt={LEFT}><RupaLogoIcon className={fill} /></TitleBit>
+      <TitleBit><PartyPopper strokeWidth={stroke} className={fill} /></TitleBit>
     </>
   );
 }

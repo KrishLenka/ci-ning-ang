@@ -17,9 +17,10 @@ const EVERY: [number, number] = [15, 30]; // s of reading between quokkas
 const PUFF_FOR: [number, number] = [5, 10]; // s it stays out with its cheeks puffed
 const PAWS_FIRST = 350; // ms between the paws reaching the edge and the head coming up
 const HEAD_UP = 0.85; // s for the head to pop up
+const HEAD_DOWN = HEAD_UP;
 const PUFF_AFTER = 350; // ms after the head settles before the cheeks puff
-const NOD_EVERY = 2; // s between nods
-const NOD_HOLD = 350; // ms the head stays down before popping back up
+const NOD_HOLD = 500; // ms the head stays down before popping back up
+const NOD_UP_HOLD = NOD_HOLD;
 
 /* Pixel art, facing the viewer. The head is 22 x 15, the paws 6 x 3. */
 const CALM = [
@@ -157,11 +158,20 @@ export function Quokka() {
   const [nodDown, setNodDown] = useState(false);
   const nodding = peek?.phase === "puff" && !reduced;
   useEffect(() => {
-    if (!nodding) { setNodDown(false); return; }
-    let every = 0, up = 0;
-    const nod = () => { setNodDown(true); up = window.setTimeout(() => setNodDown(false), NOD_HOLD); };
-    const start = window.setTimeout(() => { nod(); every = window.setInterval(nod, NOD_EVERY * 1000); }, 500);
-    return () => { window.clearTimeout(start); window.clearInterval(every); window.clearTimeout(up); };
+    if (!nodding) {
+      setNodDown(false);
+      return;
+    }
+    let timer = 0;
+    const nod = () => {
+      setNodDown(true);
+      timer = window.setTimeout(() => {
+        setNodDown(false);
+        timer = window.setTimeout(nod, NOD_UP_HOLD);
+      }, NOD_HOLD);
+    };
+    timer = window.setTimeout(nod, 500);
+    return () => window.clearTimeout(timer);
   }, [nodding]);
 
   const A = getArt();
@@ -192,8 +202,9 @@ export function Quokka() {
   const hidden = reduced ? { opacity: 0 } : { y: "110%" };
   const shown = reduced ? { opacity: 1 } : { y: "0%" };
   const headT = quick ? { duration: 0.18, ease: "easeIn" as const }
-    : headUp ? (reduced ? { duration: 0.3 } : { type: "spring" as const, duration: HEAD_UP, bounce: 0.35 })
-    : { duration: 0.45, ease: "easeInOut" as const };
+    : reduced ? { duration: 0.3 }
+    : headUp ? { type: "tween" as const, duration: HEAD_UP, ease: "easeInOut" as const }
+    : { type: "tween" as const, duration: HEAD_DOWN, ease: "easeInOut" as const };
   const pawT = quick ? { duration: 0.15, ease: "easeIn" as const } : { duration: 0.32, ease };
 
   const pct = (v: number, of: number) => `${(v / of) * 100}%`;
