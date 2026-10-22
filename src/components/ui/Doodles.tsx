@@ -212,8 +212,9 @@ export function ExperiencesDoodles() {
   return (
     <Layer>
       <Wide>
-        {/* starting just right of the heading and walking up and away from it */}
-        <Spot at="left-[27rem] -top-[6.5rem] h-[15.5rem] w-[22.5rem]">
+        {/* walking up and away from the heading, centred in the gap between the heading's end
+            (~26.25rem: it's a fixed size on large screens) and the stethoscope (8rem wide) */}
+        <Spot at="left-[calc((100%-8rem-22.5rem+26.25rem)/2+3px)] -top-[6.5rem] h-[15.5rem] w-[22.5rem]">
           <PawTrailIcon className={fill} />
         </Spot>
         <Spot at="right-0 top-[4.5rem] h-32 w-32" tilt={14}>
@@ -331,7 +332,7 @@ export function TravelTitleDoodles() {
 export function LeadershipTitleDoodles() {
   return (
     <>
-      <TitleBit tilt={LEFT}><RupaLogoIcon className={fill} /></TitleBit>
+      <TitleBit><RupaLogoIcon className={fill} /></TitleBit>
       <TitleBit><PartyPopper strokeWidth={stroke} className={fill} /></TitleBit>
     </>
   );
